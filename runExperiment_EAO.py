@@ -16,7 +16,7 @@ from pathlib import Path
 # Step1 Run the 0 cell to load the uID etc. into memory
 
 # User Settings
-uID = 54
+uID = 29
 # readDataQ = True
 # corr_times_setQ = False # Are correction times from acc entered?
 
@@ -169,85 +169,5 @@ if eyeData:
 print(yLabelDfDict.keys())
 saveFigFilePath = outputFolder + "user" + str(uID) + '/uID-' + str(uID)  + '_subplots.pdf'
 
-generateSubPlots.generateSubPlotsWithAdVideoTimes(uID, out_times_lst, yLabelDfDict, saveFigFilePath)
-
-#%%
-
-#resample the signals
-
-import Tools.interpolate_funs as intFuns
-from scipy.interpolate import splev
-import matplotlib.pyplot as plt
-import glob, os
-import pandas as pd
-
-uID = 6
-
-
-    
-userOutputFolder = "C:/Users/evinao/Documents/GitHub/SimplePlot_23_07_2021/output/user"
-
-os.chdir(userOutputFolder + str(uID))
-print(glob.glob("*.csv"))
-
-plotIndex = 1
-
-os.chdir(userOutputFolder + str(uID))
-for file in glob.glob("*.csv"):
-    #don't know what to do withIBI_time
-    print(file)
-    if "IBI" in file:
-        print("IBI file don't know what to do")
-        continue
-    else:
-        print("in if statement")
-        df = pd.read_csv(file)
-        print(df['timestamp_s'])
-        for signalName in df.columns:
-            if signalName == "timestamp_s" or signalName == "Unnamed: 0":
-                continue
-            else:
-                print(signalName)
-                xIn = df['timestamp_s']
-                yIn = df[signalName] 
-                tMin, tMax = df['timestamp_s'].iloc[0], df['timestamp_s'].iloc[-1]
-                kIn = 3
-                TsIn = 1.1
-                fCode = 1
-                tck = intFuns.interpolateBS(xIn, yIn, tMin, tMax, kIn, TsIn, fCode)
-                
-                new_y = splev(xIn, tck)
-                plt.figure(plotIndex)
-                plt.title('interpolateBS '  + file +  ' ' + signalName + ' plot') 
-                plt.plot(xIn, yIn, color = 'b', label='Orig')
-                plt.plot(xIn, new_y, color = 'r', label='Interp.')
-                plt.legend()
-                plt.show()
-                plotIndex += 1
-
-# df = pd.read_csv("C:/Users/evinao/Documents/GitHub/SimplePlot_23_07_2021/output/user1/uID-1_empatica_TEMP_df_synced.csv") #
-# signalName = 'TEMP'
-# print(df)
-
-# xIn = df['timestamp_s']#np.array([-0.1, 0.1, 1.1, 1.9, 6.1, 7.9, 8.1])
-# yIn = df[signalName] #np.array([2, 1.0, 1.8, 0.1, 6.5, 4.1, 2.3])
-# tMin, tMax = df['timestamp_s'].iloc[0], df['timestamp_s'].iloc[-1]
-# kIn = 3 #the order of each polynomial file in there, smoothness of the data 
-# TsIn = 0.2
-# fCode = 1
-# tck = intFuns.interpolateBS(xIn, yIn, tMin, tMax, kIn, TsIn, fCode)
-
-# new_y = splev(xIn, tck)
-# plt.figure(1)
-# plt.title('interpolateBS ' + signalName + " plot") 
-# plt.plot(xIn, yIn, color = 'b', label='Orig')
-# plt.plot(xIn, new_y, color = 'r', label='Interp.')
-# plt.legend()
-# plt.show()
-
-
-
-
-
-
+generateSubPlots.generateSubPlotsWithAdVideoTimesOfOneUser(uID, out_times_lst, yLabelDfDict, saveFigFilePath)
 
