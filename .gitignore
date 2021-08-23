@@ -1,0 +1,13 @@
+
+*.pyc
+*.csv
+*.json
+*.jpg
+*.pdf
+*.gz
+*.mp4
+Data/users/user38/Tobii/recordings/5aoy3qw/segments/1/md5sums
+Data/users/user39/Tobii/recordings/safrgnt/segments/1/md5sums
+*.txt
+*.pickle
+*.zip

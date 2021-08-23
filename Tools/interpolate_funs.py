@@ -111,12 +111,17 @@ def interpolateBS(xIn, yIn, tMin, tMax, kIn, TsIn, fCode):
     xeIn = new_times[-1]
     tckOut = splrep(new_times, new_vals, xb=xbIn, xe=xeIn, k=kIn, t=tIn, s=sIn, task=-1)
 
+    # print("xin length")
+    # print(xIn.len())
+    # print("new times length")
+    # print(new_times.len)
+    
     return tckOut
   
 
 # =============================================================================  
 # Test data & code
-'''
+
 xIn = np.array([-0.1, 0.1, 1.1, 1.9, 6.1, 7.9, 8.1])
 yIn = np.array([2, 1.0, 1.8, 0.1, 6.5, 4.1, 2.3])
 tMin, tMax = -0.1, 8.1
@@ -126,12 +131,14 @@ fCode = 1
 tck = interpolateBS(xIn, yIn, tMin, tMax, kIn, TsIn, fCode)
 from scipy.interpolate import splev
 import matplotlib.pyplot as plt
-new_y = splev(xIn, tck)
+max_time = np.max(xIn)
+uniform_times = np.arange(0, max_time, 1.0/30.0)
+new_y = splev(uniform_times, tck)
 plt.figure(1)
 plt.title('interpolateBS test plot')
 plt.plot(xIn, yIn, color = 'b', label='Orig')
-plt.plot(xIn, new_y, color = 'r', label='Interp.')
+plt.plot(uniform_times, new_y, color = 'r', label='Interp.')
 plt.legend()
 plt.show()
-'''
+
 
