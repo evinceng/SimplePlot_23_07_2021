@@ -12,6 +12,7 @@ import dateutil
 from tzlocal import get_localzone
 import os.path, time
 import os,glob
+import pickle
 # on MM
 
 mm_seq = {}
@@ -20,11 +21,16 @@ mm_seq['Box4'] = ['C1', 'C2', 'C3', 'C4']
 mm_seq['Box2'] = ['C3', 'C1', 'C4', 'C2']
 mm_seq['Box3'] = ['C2', 'C4', 'C1', 'C3']
 
+# C1-L Explore-Littlebaby
+# C2-M2 72kg-DietCoke
+# C3-M1 Tahiti-Bounty
+# C4-H Mixtape-Waring
+
 video_len = {} 
-video_len['C1'] = '00:04:04'
-video_len['C2'] = '00:03:48'
-video_len['C3'] = '00:03:54'
-video_len['C4'] = '00:03:38'
+video_len['C1'] = '00:04:04' #C1-L Explore-Littlebaby
+video_len['C2'] = '00:03:48' #C2-M2 72kg-DietCoke
+video_len['C3'] = '00:03:54' #C3-M1 Tahiti-Bounty
+video_len['C4'] = '00:03:38' #C4-H Mixtape-Waring
 
 ad_times = {}
 ad_times['C1'] = ['00:00:50:060', '00:01:56:080']
@@ -33,6 +39,12 @@ ad_times['C3'] = ['00:02:08:010', '00:02:43:120']
 ad_times['C4'] = ['00:00:43:090', '00:01:58:170']
 
 
+def loadFigFromPickleFile(filename):
+    figx = pickle.load(open(filename, 'rb'))
+    figx.show() # Show the figure, edit it, etc.!
+    
+def writePickleFile(fig, filename):
+    pickle.dump(fig, open(filename +'.pickle', 'wb'))
 
 
 # @brief Convert time string to a seconds from middnight (miliseconds are decimals of seconds)
@@ -129,6 +141,31 @@ def get_video_and_ad_times(usersDictFileName, uID):
         c_end_video_time = c_start_video_time + video_len_sec[C_ii] # Add times properly!
         c_start_ad_time = get_secs_from_str(users_dict[uID]['R' + str(ii+1)]) + ad_times_sec[C_ii][0]
         c_end_ad_time = get_secs_from_str(users_dict[uID]['R' + str(ii+1)]) + ad_times_sec[C_ii][1]
+    
+        out_times_lst.append([c_start_video_time, c_start_ad_time, c_end_ad_time, c_end_video_time])
+        print(out_times_lst)
+    return out_times_lst
+
+
+# @brief compute video and ad times for a given user
+# @par 
+# @return a list of times [start_video, start_ad, end_ad, end_video]
+def get_video_and_ad_times_userslist_one_content(usersDictFileName, uIDList, contentID='C1'):   
+    
+    users_dict = readDict(usersDictFileName)   
+    # print(users_dict)
+    
+    out_times_lst = []
+    
+    for uID in uIDList:
+        uID_Box = 'Box' + str(users_dict[uID]['Box'])# Box1
+        print(str(uID) + ' ' + uID_Box)
+        C_ii = mm_seq[uID_Box].index(contentID)
+        roundID = 'R' + str(C_ii + 1)
+        c_start_video_time = get_secs_from_str(users_dict[uID][roundID])
+        c_end_video_time = c_start_video_time + video_len_sec[contentID] # Add times properly!
+        c_start_ad_time = c_start_video_time + ad_times_sec[contentID][0]
+        c_end_ad_time = c_start_video_time + ad_times_sec[contentID][1]
     
         out_times_lst.append([c_start_video_time, c_start_ad_time, c_end_ad_time, c_end_video_time])
         print(out_times_lst)

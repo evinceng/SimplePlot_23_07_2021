@@ -34,6 +34,9 @@ def generateSubPlotsWithAdVideoTimesOfOneUser(uID, out_times_lst, yLabelDfDict, 
             axis.axvline(x=ad[1], c='r')
             axis.axvline(x=ad[2], c='r')
             axis.axvline(x=ad[3], c='g')
-            
+                        
     plt.savefig(saveFigFilePath)
     plt.show()
+
+
+    
