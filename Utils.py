@@ -21,16 +21,16 @@ mm_seq['Box4'] = ['C1', 'C2', 'C3', 'C4']
 mm_seq['Box2'] = ['C3', 'C1', 'C4', 'C2']
 mm_seq['Box3'] = ['C2', 'C4', 'C1', 'C3']
 
-# C1-L Explore-Littlebaby
-# C2-M2 72kg-DietCoke
-# C3-M1 Tahiti-Bounty
-# C4-H Mixtape-Waring
+# C1-L_Explore- H_Littlebaby
+# C2-M2_72kg- H_DietCoke
+# C3-M1_Tahiti- M_Bounty
+# C4-H_Mixtape-L_Waring
 
 video_len = {} 
-video_len['C1'] = '00:04:04' #C1-L Explore-Littlebaby
-video_len['C2'] = '00:03:48' #C2-M2 72kg-DietCoke
-video_len['C3'] = '00:03:54' #C3-M1 Tahiti-Bounty
-video_len['C4'] = '00:03:38' #C4-H Mixtape-Waring
+video_len['C1'] = '00:04:04' #C1-L_Explore- H_Littlebaby
+video_len['C2'] = '00:03:48' #C2-M2_72kg- H_DietCoke
+video_len['C3'] = '00:03:54' #C3-M1_Tahiti- M_Bounty
+video_len['C4'] = '00:03:38' #C4-H_Mixtape-L_Waring
 
 ad_times = {}
 ad_times['C1'] = ['00:00:50:060', '00:01:56:080']
@@ -253,7 +253,7 @@ def getHikVisionCreationTime(hikvisionFilePath):
 #     print(created_Time)
 #     return created_Time
     
-def getTobiiStartTimeFrompupilDim(tobiiFilePath):
+def getTobiiStartTimeFromFilesMaxTime(tobiiFilePath):
     fnList = ["accelerometer.csv", "gazeDirection.csv", "gazePosition.csv",
               "gazePosition3D.csv", "gyroscope.csv", "pupilCenter.csv", "pupilDim.csv"]
     startTimes = []
@@ -300,7 +300,7 @@ def fillAbsStartTimesOfSensors(rootFolder, filesFoldersDictFileName):
             if uID == 50:
                 continue;
             if(not pd.isnull(data_fn_dict[uID]['tobiiFolderPath_csharp'])):
-                users[uID]['tobiiAbsStartTime_sec'] = getTobiiStartTimeFrompupilDim(rootFolder + data_fn_dict[uID]['tobiiFolderPath_csharp'])
+                users[uID]['tobiiAbsStartTime_sec'] = getTobiiStartTimeFromFilesMaxTime(rootFolder + data_fn_dict[uID]['tobiiFolderPath_csharp'])
             else: 
                 print("no charp data")
               
@@ -343,4 +343,4 @@ root_folder = 'D:/LivingLabMeasurements/'
 
 # print(get_secs_from_str("00:06:45:080"))
 # print(get_secs_from_str("00:02:54:800"))
-print(get_secs_from_str("00:05:18:066"))
+print(get_secs_from_str("00:04:33:433"))

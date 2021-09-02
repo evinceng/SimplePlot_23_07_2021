@@ -138,8 +138,13 @@ def generateCutDfAfterClapSync(usersDictFileName, uID, dfDict, rootFolder):
     
     for currItemKey in dfDict.keys():
         if 'tobii' in currItemKey:
-            corrTime = refAbsStartTime - Utils.get_secs_from_str(dfDict[currItemKey]["utc_time"].iloc[0])
-            synchedDf = get_synced_time_df(dfDict[currItemKey], corrTime)            
+            if users[uID]['isClap0Pupil1Hikvision2Tobii'] == 1 and not pd.isna( users[uID]['tobiiCorrTime_sec']):
+                tobii_corr_time =  refAbsStartTime - users[uID]['tobiiAbsStartTime_sec'] + users[uID]['tobiiCorrTime_sec'] #
+                synchedDf = get_synced_time_df(dfDict[currItemKey], tobii_corr_time)
+                
+            else:
+                corrTime = refAbsStartTime - Utils.get_secs_from_str(dfDict[currItemKey]["utc_time"].iloc[0])
+                synchedDf = get_synced_time_df(dfDict[currItemKey], corrTime)            
         elif currItemKey == 'shimmer_df':
             if dfDict[currItemKey].empty:
                 continue
@@ -150,7 +155,7 @@ def generateCutDfAfterClapSync(usersDictFileName, uID, dfDict, rootFolder):
             
         elif currItemKey == 'pupillabs_df' or currItemKey == 'pupillabs_gaze_df':
             if users[uID]['isClap0Pupil1Hikvision2Tobii'] == 1 and not pd.isna( users[uID]['pupillabsCorrTime_sec']):
-                pupillabs_corr_time =  users[uID]['pupillabsCorrTime_sec'] #refAbsStartTime - users[uID]['pupillabsAbsStartTime_sec'] +
+                pupillabs_corr_time =  refAbsStartTime - users[uID]['pupillabsAbsStartTime_sec'] + users[uID]['pupillabsCorrTime_sec'] #
                 synchedDf = get_synced_time_df(dfDict[currItemKey], pupillabs_corr_time)
                 
                 print("The pupil labs corrections time is ")
