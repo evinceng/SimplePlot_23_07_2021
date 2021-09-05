@@ -343,4 +343,13 @@ root_folder = 'D:/LivingLabMeasurements/'
 
 # print(get_secs_from_str("00:06:45:080"))
 # print(get_secs_from_str("00:02:54:800"))
-print(get_secs_from_str("00:04:33:433"))
+# print(get_secs_from_str("00:05:42:200"))
+
+# usersDictFileName = "Data/usersDict.xlsx"
+# get_video_and_ad_times(usersDictFileName, 14)
+
+# loadFigFromPickleFile("C:/Users/evinao/Documents/GitHub/SimplePlot_23_07_2021/output/user8/uID-8 shimmer empatica abs acc.pickle")
+
+# loadFigFromPickleFile("C:/Users/evinao/Documents/GitHub/SimplePlot_23_07_2021/output/user2/uID-2 shimmer empatica abs acc.pickle")
+
+# loadFigFromPickleFile("C:/Users/evinao/Documents/GitHub/SimplePlot_23_07_2021/output/user2/uID-2_subplots.pdf.pickle")

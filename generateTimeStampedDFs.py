@@ -244,9 +244,10 @@ def createDFAndFilterPupilRelevantData(file_path, plotQ=False):
     return df.copy(), gaze_df.copy() #, df[timeStampRenameColumn][0]
 
 def createTobiiDf(tobiiFilePath, plotQ=False):
-        
+    #user5 only has pupilDim
+        #
     fnList = ["accelerometer.csv", "gazeDirection.csv", "gazePosition.csv",
-              "gazePosition3D.csv", "gyroscope.csv", "pupilCenter.csv", "pupilDim.csv"]
+               "gazePosition3D.csv", "gyroscope.csv", "pupilCenter.csv", "pupilDim.csv"]
     
     dfList = []
     for fileName in fnList:
@@ -315,6 +316,8 @@ def loadData(uID, root_folder, usersDictFilePath):
         dfDict['tobii_gyroscope_df'] = tobii_dfList[4]
         dfDict['tobii_pupilCenter_df'] = tobii_dfList[5]
         dfDict['tobii_pupilDim_df'] = tobii_dfList[6]
+        #for user5
+        # dfDict['tobii_pupilDim_df'] = tobii_dfList[0]
     
     
     return dfDict

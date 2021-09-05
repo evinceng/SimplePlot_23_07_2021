@@ -442,8 +442,10 @@ def resampleuIDCsvFiles(rootFolder , uID):
 def resampleAllFolders(rootFolder):
     
     #1,2,3,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,25, 26,27,28,29,30,31,32,33,34,35,36,
-    uIDlist = [
-              37,38,39,46,47,48,49,50,51,52,53,54,55,56,57,58,60]
+              # 37,38,39,46,47,48,49,50,51,52,53,54,55,56,57,58,60
+              #2,3,4,5,6,7,8,
+    uIDlist = [9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,25, 26,27,28,29,30,31,32,33,34,35,36,
+               37,38,39,46,47,48,49,50,51,52,53,54,55,56,57,58,60]
     
     for userid  in uIDlist:
         print(userid)
@@ -451,6 +453,6 @@ def resampleAllFolders(rootFolder):
         
 # resampleuIDCsvFiles(rootFolder, 4)
 
-# resampleAllFolders(rootFolder)
+resampleAllFolders(rootFolder)
 
-loadFigFromPickleFile(rootFolder + '60/Figs/interpolateBS uID-60_empatica_ACC AccX plot1.pickle')
+# loadFigFromPickleFile(rootFolder + '60/Figs/interpolateBS uID-60_empatica_ACC AccX plot1.pickle')

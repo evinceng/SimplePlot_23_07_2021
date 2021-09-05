@@ -6,7 +6,7 @@ Created on Mon Jun 14 13:52:30 2021
 """
 
 import matplotlib.pyplot as plt
-
+import Utils
 
 def generateSubPlotsWithAdVideoTimesOfOneUser(uID, out_times_lst, yLabelDfDict, saveFigFilePath):
     
@@ -36,6 +36,7 @@ def generateSubPlotsWithAdVideoTimesOfOneUser(uID, out_times_lst, yLabelDfDict, 
             axis.axvline(x=ad[3], c='g')
                         
     plt.savefig(saveFigFilePath)
+    Utils.writePickleFile(fig, saveFigFilePath)
     plt.show()
 
 

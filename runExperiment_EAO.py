@@ -12,11 +12,13 @@ import generateSubPlots
 import pandas as pd
 import os.path
 from pathlib import Path
+from IPython import get_ipython
+get_ipython().run_line_magic('matplotlib', 'qt5')
 
 # Step1 Run the 0 cell to load the uID etc. into memory
 
 # User Settings
-uID = 32
+uID = 38
 # readDataQ = True
 # corr_times_setQ = False # Are correction times from acc entered?
 
@@ -25,6 +27,8 @@ rootFolder = 'D:/LivingLabMeasurements/'
 usersDictFileName = "Data/usersDict.xlsx"
 filesFoldersDictFileName = "Data/livinglabUsersFileFolderNames.xlsx"
 
+outputFolder = 'output/'
+Path(outputFolder + "user" + str(uID)).mkdir(parents=True, exist_ok=True) # will not change directory if exists
 
 # # Should be run only once in order to get the abs start time of sensors for each user.
 # The generated file is already in Data folder usersAbsStartTimes.xlsx
@@ -66,8 +70,6 @@ print('Substract the peak times from clap time and get empaticaCorrTime_sec, and
 # %%
 
 #Step3
-outputFolder = 'output/'
-Path(outputFolder + "user" + str(uID)).mkdir(parents=True, exist_ok=True)
 
 TimeSyncHelper.generateCutDfAfterClapSync(usersDictFileName, uID, dfDict, outputFolder)
 
@@ -79,7 +81,7 @@ print('Second cell finished...')
 
 out_times_lst = Utils.get_video_and_ad_times(usersDictFileName, uID)
 
-
+print(out_times_lst)
 # Select columns
 empatica_name = 'empatica_ACC'
 empatica_label = 'AccX'
@@ -169,5 +171,6 @@ if eyeData:
 print(yLabelDfDict.keys())
 saveFigFilePath = outputFolder + "user" + str(uID) + '/uID-' + str(uID)  + '_subplots.pdf'
 
+print(out_times_lst[0])
 generateSubPlots.generateSubPlotsWithAdVideoTimesOfOneUser(uID, out_times_lst, yLabelDfDict, saveFigFilePath)
 

@@ -77,7 +77,7 @@ def generateSynchedAbsoluteAccPlots(usersDictFileName, uID, shimmer_df, empatica
         refAbsStartTime = users[uID]['tobiiAbsStartTime_sec']
     
     # Get absolute accelerations 
-    if not shimmer_df.empty:
+    if (shimmer_df is not None) and not shimmer_df.empty:
         shimmer_abs_acc_df = get_abs_acc(shimmer_df, 'shimmer')
     empatica_abs_acc_df = get_abs_acc(empatica_ACC_df, 'empatica')
     
@@ -89,7 +89,7 @@ def generateSynchedAbsoluteAccPlots(usersDictFileName, uID, shimmer_df, empatica
        
     
     empatica_synced_abs_acc_df = get_synced_time_df(empatica_abs_acc_df, refAbsStartTime - users[uID]['empaticaAbsStartTime_sec'])
-    if not shimmer_df.empty:
+    if (shimmer_df is not None) and not shimmer_df.empty:
         shimmer_synced_abs_acc_df = get_synced_time_df(shimmer_abs_acc_df, refAbsStartTime - users[uID]['shimmerAbsStartTime_sec'])
    
     
@@ -104,13 +104,13 @@ def generateSynchedAbsoluteAccPlots(usersDictFileName, uID, shimmer_df, empatica
     ax[0].set_ylabel('empatica abs acc')
     ax[0].grid(True)
     
-    if not shimmer_df.empty:
+    if (shimmer_df is not None) and not shimmer_df.empty:
         ax[1].plot(shimmer_synced_abs_acc_df['timestamp_s'], shimmer_synced_abs_acc_df['abs_acc'])
         ax[1].axvline(x=rel_clap_time_s, c='r')
         ax[1].set_xlabel('t [s]')
         ax[1].set_ylabel('shimmer abs acc')
         ax[1].grid(True)
-    
+    Utils.writePickleFile(fig, 'output/user' + str(uID) + '/uID-' + str(uID) + ' shimmer empatica abs acc')
     plt.show()
 
 
@@ -146,7 +146,7 @@ def generateCutDfAfterClapSync(usersDictFileName, uID, dfDict, rootFolder):
                 corrTime = refAbsStartTime - Utils.get_secs_from_str(dfDict[currItemKey]["utc_time"].iloc[0])
                 synchedDf = get_synced_time_df(dfDict[currItemKey], corrTime)            
         elif currItemKey == 'shimmer_df':
-            if dfDict[currItemKey].empty:
+            if dfDict[currItemKey] is None or dfDict[currItemKey].empty:
                 continue
             
             print(users[uID]['shimmerCorrTime_sec'])
