@@ -13,6 +13,7 @@ from tzlocal import get_localzone
 import os.path, time
 import os,glob
 import pickle
+import numpy as np
 # on MM
 
 mm_seq = {}
@@ -171,6 +172,30 @@ def get_video_and_ad_times_userslist_one_content(usersDictFileName, uIDList, con
         print(out_times_lst)
     return out_times_lst
 
+# @brief compute video and ad times for a given user
+# @par 
+# @return a list of times [start_video, start_ad, end_ad, end_video]
+def get_video_and_ad_times_userslist_one_content_uid_boxID(usersDictFileName, uIDList, contentID='C1'):   
+    
+    users_dict = readDict(usersDictFileName)   
+    # print(users_dict)
+    
+    out_times_lst = []
+    
+    for uID in uIDList:
+        uID_Box = 'Box' + str(users_dict[uID]['Box'])# Box1
+        print(str(uID) + ' ' + uID_Box)
+        C_ii = mm_seq[uID_Box].index(contentID)
+        roundID = 'R' + str(C_ii + 1)
+        c_start_video_time = get_secs_from_str(users_dict[uID][roundID])
+        c_end_video_time = c_start_video_time + video_len_sec[contentID] # Add times properly!
+        c_start_ad_time = c_start_video_time + ad_times_sec[contentID][0]
+        c_end_ad_time = c_start_video_time + ad_times_sec[contentID][1]
+    
+        out_times_lst.append([uID,users_dict[uID]['Box'], users_dict[uID][roundID], c_start_video_time, c_start_ad_time, c_end_ad_time, c_end_video_time])
+        print(out_times_lst)
+    return out_times_lst
+
 #test if works
 # uID = 1
 # usersJsonFileName = 'users_1_9_36.json'
@@ -317,6 +342,35 @@ root_folder = 'D:/LivingLabMeasurements/'
 # filesFoldersDictFileName = "Data/livinglabUsersFileFolderNames.xlsx"
 # fillAbsStartTimesOfSensors(root_folder, filesFoldersDictFileName)
 
+
+def writeAdStartAndEndTimesToFile(usersDictFileName):
+    uIDlist = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,25, 26,27,28,29,30,31,32,33,34,35,36,
+               37,38,39,46,47,48,49,50,51,52,53,54,55,56,57,58,60]
+    
+    columns = ["uID", "BoxID", "RoundStart", "VS", "AS", "AE", "VE"]
+               # ,"C2_VS", "C2_AS", "C2_VE", "C2_AE",
+               # "C3_VS", "C3_AS", "C3_VE", "C3_AE","C4_VS", "C4_AS", "C4_VE", "C4_AE"]
+    contents = ["C1", "C2", "C3", "C4"]
+    data = []
+    
+    for content in contents:
+        out_times_lst = get_video_and_ad_times_userslist_one_content_uid_boxID(usersDictFileName, uIDlist, contentID=content)
+        # numpy_array = np.array(out_times_lst)
+        # transpose = numpy_array.T        
+        # transpose_list = transpose.tolist()
+        # data=uIDlist + out_times_lst
+        df = pd.DataFrame(data=out_times_lst, columns=columns)
+        df.to_csv("Data/"+ content + "_usersAdStartEndTimes.csv", index=False)
+        
+def getAdTimeInterval(fileName, uID):
+    times_df = pd.read_csv(fileName)
+    
+    return [times_df[uID]['AS'],times_df[uID]['AE']]
+
+# #create the when contents started and ended for each user
+# usersDictFileName = "Data/usersDict.xlsx"
+# writeAdStartAndEndTimesToFile(usersDictFileName)
+# # end of create the when contents started and ended for each user
 
 # # test functions
 # getTobiiStartTimeFrompupilDim(root_folder + "user18/Tobii/")
