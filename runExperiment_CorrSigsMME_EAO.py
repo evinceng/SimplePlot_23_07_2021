@@ -82,8 +82,8 @@ preproc_meth = 'lowpass'
 cut_f = 5 # Hertz
 
 feature_codes = ['std', 'slope', 'spec_amp', 'spec_phs']
-feature_code = 'slope'
-
+feature_code = feature_codes[0]
+feature_pars = []
 
 #%% Functions
 

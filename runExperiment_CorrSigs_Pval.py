@@ -67,13 +67,15 @@ tobiiSignals = {'accelerometer': ['ac_x', 'ac_y', 'ac_z'],
 # sensors = {1:['empatica', empaticaSignals] , 2:['shimmer', shimmerSignals],
 #            3:['tobii',tobiiSignals],  4:['pupillabs', pupillabsSignals]}
 
-signalName = 'EDA'
-sensorID = 1
 
-sensors = {1:['empatica', {'EDA':['EDA']}]}
+sensorID = 1
+signalName = 'BVP'
+sensors = {1:['empatica', {'BVP':['BVP']}]}
+
+# signalName = 'EDA'
+# sensors = {1:['empatica', {'EDA':['EDA']}]}
 
 # Settings
-
 lowpassQ = True
 scatterQ = True
 pVals = True
@@ -92,7 +94,7 @@ feature_code = feature_codes[0]
 feature_pars = []
 
 coeff_types = ['Pearson', 'KendalTau']
-coeff_type = coeff_types[1]
+coeff_type = coeff_types[0]
 
 
 isOnlyLowHighScoreUsers = False
@@ -166,13 +168,15 @@ if isOnlyLowHighScoreUsers:
     # Build dictionary
     users = {}
     for cuID in lowFactorUserIDs['userID']:
-        users[cuID] = {}
-        users[cuID][signalName] = {}
+        users[cuID] = {}   
+        users[cuID][sensorID] = {}
+        users[cuID][sensorID][signalName] = {}
         users[cuID][selectedFactor] = lowFactorUserIDs.loc[lowFactorUserIDs['userID']==cuID][selectedFactor]
         
     for cuID in highFactorUserIDs['userID']:
-        users[cuID] = {}
-        users[cuID][signalName] = {}
+        users[cuID] = {}   
+        users[cuID][sensorID] = {}
+        users[cuID][sensorID][signalName] = {}
         users[cuID][selectedFactor] = highFactorUserIDs.loc[highFactorUserIDs['userID']==cuID][selectedFactor]
 
 
@@ -181,8 +185,9 @@ else:
 
     users = {}
     for cuID in allusers['userID']:
-        users[cuID] = {}
-        users[cuID][signalName] = {}
+        users[cuID] = {}   
+        users[cuID][sensorID] = {}
+        users[cuID][sensorID][signalName] = {}
         users[cuID][selectedFactor] = allusers.loc[allusers['userID']==cuID][selectedFactor]
         
 #%% Load data
@@ -217,7 +222,7 @@ for cuID in uIDs:
         
     # Feature extraction 
     time_int = sat.getAdTimeInterval("Data/" + selectedContent + "_usersAdStartEndTimes.csv", cuID)
-    users[cuID][signalName][feature_code] = sat.get_timesingal_feature(sig_t, sig_p_x, time_int, feature_pars, feature_code)
+    users[cuID][sensorID][sensorID][signalName][feature_code] = sat.get_timesingal_feature(sig_t, sig_p_x, time_int, feature_pars, feature_code)
 
 print(users)
 
@@ -248,9 +253,9 @@ print(users)
 # #%% Feature extraction 
 
 # time_int = sat.getAdTimeInterval("Data/" + selectedContent + "_usersAdStartEndTimes.csv", uID)
-# users[uID][signalName][feature_code] = sat.get_timesingal_feature(sig_t, sig_p_x, time_int, code=feature_code)
+# users[uID][sensorID][signalName][feature_code] = sat.get_timesingal_feature(sig_t, sig_p_x, time_int, code=feature_code)
 
-# print(users[uID][signalName][feature_code])
+# print(users[uID][sensorID][signalName][feature_code])
 
 #%% Visual inspection 
 
@@ -276,9 +281,9 @@ if plotScatteQ: # 2D scatter plot
     # sat.scatter_sigs_MME(uIDs, users, signalName, feature_code)
     for uID in uIDs:
         if feature_code == 'std':
-            plt.scatter(users[uID][signalName][feature_code],users[uID][selectedFactor])
+            plt.scatter(users[uID][sensorID][signalName][feature_code],users[uID][selectedFactor])
         elif feature_code == 'slope':
-            plt.scatter(users[uID][signalName][feature_code][0],users[uID][selectedFactor])
+            plt.scatter(users[uID][sensorID][signalName][feature_code][0],users[uID][selectedFactor])
 
     plt.title(selectedFactor + ' vs '  + sensors[sensorID][0] + ' ' + signalName + ' ' + feature_code)
     plt.xlabel(sensors[sensorID][0] + ' ' + signalName + ' ' + feature_code)
