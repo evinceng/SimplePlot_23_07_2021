@@ -19,8 +19,6 @@ import pickle
 import Utils
 import numpy as np
 import scipy.stats as sst
-import tabulate
-from tabulate import Texttable
 
 outputFolder = "SignalCorrelation/"
 
@@ -90,9 +88,11 @@ preproc_meth = 'lowpass'
 cut_f = 5 # Hertz
 
 feature_codes = ['std', 'slope', 'spec_amp', 'spec_phs']
-feature_code = 'std'
+feature_code = feature_codes[0]
 feature_pars = []
-coeff_type = 'Pearson'
+
+coeff_types = ['Pearson', 'KendalTau']
+coeff_type = coeff_types[1]
 
 
 isOnlyLowHighScoreUsers = False
@@ -156,15 +156,6 @@ def readSignal(fileName, signalName):
 def getSignalDf(userID, sensorID, signalName, sensorFileNameExt = ""):
     fileName = fileNameGenerator(userID, sensorID, sensorFileNameExt)
     return readSignal(fileName, signalName)
-
-def writeToLatexTable(rows):
-    print('Tabulate Table:')
-    print(tabulate(rows, headers='firstrow'))
-    table = Texttable()
-    table.set_cols_align(["c"] * 4)
-    table.set_deco(Texttable.HEADER | Texttable.VLINES)
-    print('\nTexttable Table:')
-    print(table.draw())
       
 #%% Load MMAES scores
 if isOnlyLowHighScoreUsers:
@@ -260,46 +251,26 @@ print(users)
 # users[uID][signalName][feature_code] = sat.get_timesingal_feature(sig_t, sig_p_x, time_int, code=feature_code)
 
 # print(users[uID][signalName][feature_code])
-#%% Load pickle file
-
-
-Utils.loadFigFromPickleFile('C:/Users/evinao/Documents/GitHub/SimplePlot_23_07_2021/SignalCorrelation/C1/empatica/uID_5_EDA_preprocessed.pickle')
 
 #%% Visual inspection 
 
 if pVals:
     x_data, y_data = [k for k,v in users.items()], [v[signalName][feature_code][0] for k,v in users.items()]
     r, p = sat.correlate_sigs_MME_OnlyData(x_data, y_data, coeff_type)
-    print(r)
-    print(p)
-    data = {'Sensor': [sensors[sensorID][0]],
+    print("r = " + str(r))
+    print("p = "+ str(p))
+    data = { 'Content': [selectedContent],
+            'MMAES Subscale': [selectedFactor],
+            'Sensor': [sensors[sensorID][0]],
             'Signal': [signalName],
+            'Feature Code': [feature_code],
             'Coeffcient Type':[coeff_type],
             'r Val':[r],
             'p Val':[p]}
     df = pd.DataFrame(data)
-    fName = outputFolder + selectedContent + '/' + sensors[sensorID][0] + "/" + feature_code + ' ' + sensors[sensorID][0] + ' ' + signalName
+    fName = outputFolder + selectedContent + '/' + sensors[sensorID][0] + "/" + feature_code + ' ' + coeff_type + ' ' + sensors[sensorID][0] + ' ' + signalName
     df.to_latex(fName + '_pval.tex', index=False)
-    # # m = len(uIDs)
 
-    # # Collect data
-    
-    
-    # x_data = np.array(x_data)
-    # y_data = np.array(y_data)
-    # # for uID in uIDs: 
-    # #     x_data, y_data = users[signalName][feature_code],  users[uID][selectedFactor]
-        
-    # # if plotQ:
-    # #     plt.scatter(x_data, y_data)
-
-
-    # # Compute correlation
-    # if coeff_type == 'Pearson':
-    #     r, p = sst.pearsonr(x_data, y_data)
-    # if coeff_type == 'KendalTau':
-    #     r, p = sst.kendalltau(x_data, y_data)
-    # r, p = sat.correlate_sigs_MME(uIDs, users, signalName, feature_code, selectedFactor, coeff_type, False)
 
 if plotScatteQ: # 2D scatter plot
     # sat.scatter_sigs_MME(uIDs, users, signalName, feature_code)
@@ -309,11 +280,11 @@ if plotScatteQ: # 2D scatter plot
         elif feature_code == 'slope':
             plt.scatter(users[uID][signalName][feature_code][0],users[uID][selectedFactor])
 
-    plt.title(selectedFactor + ' ' + feature_code + ' vs '  + sensors[sensorID][0] + ' ' + signalName )
-    plt.xlabel(feature_code)
-    plt.ylabel(signalName)
+    plt.title(selectedFactor + ' vs '  + sensors[sensorID][0] + ' ' + signalName + ' ' + feature_code)
+    plt.xlabel(sensors[sensorID][0] + ' ' + signalName + ' ' + feature_code)
+    plt.ylabel(selectedFactor + '_Score')
     plt.legend()
-    fName = outputFolder + selectedContent + '/' + sensors[sensorID][0] + "/" + feature_code + ' ' + sensors[sensorID][0] + ' ' + signalName
+    fName = outputFolder + selectedContent + '/' + sensors[sensorID][0] + "/" + feature_code + ' ' + coeff_type + ' '  + sensors[sensorID][0] + ' ' + signalName
     plt.savefig(fName + ".jpg")
     pickle.dump(fig, open(fName +'.pickle', 'wb'))
     plt.show()
@@ -322,4 +293,7 @@ if plot3D:
     feature_codes = ['std', 'slope', 'spec_low']
     sat.plot_features_MME_3D(uIDs, users, signalName, feature_codes)
 
-    
+#%% Load pickle file
+
+
+Utils.loadFigFromPickleFile('C:/Users/evinao/Documents/GitHub/SimplePlot_23_07_2021/SignalCorrelation/C1/empatica/uID_5_EDA_preprocessed.pickle')

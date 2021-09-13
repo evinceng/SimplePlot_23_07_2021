@@ -82,9 +82,7 @@ preproc_meth = 'lowpass'
 cut_f = 5 # Hertz
 
 feature_codes = ['std', 'slope', 'spec_amp', 'spec_phs']
-feature_code = 'std'
-feature_pars = []
-coeff_type = 'Pearson'
+feature_code = 'slope'
 
 
 #%% Functions
@@ -155,13 +153,15 @@ print(highFactorUserIDs)
 # Build dictionary
 users = {}
 for cuID in lowFactorUserIDs['userID']:
-    users[cuID] = {}
-    users[cuID][signalName] = {}
+    users[cuID] = {}    
+    users[cuID][sensorID] = {}
+    users[cuID][sensorID][signalName] = {}
     users[cuID][selectedFactor] = lowFactorUserIDs.loc[lowFactorUserIDs['userID']==cuID][selectedFactor]
     
 for cuID in highFactorUserIDs['userID']:
     users[cuID] = {}
-    users[cuID][signalName] = {}
+    users[cuID][sensorID] = {}
+    users[cuID][sensorID][signalName] = {}
     users[cuID][selectedFactor] = highFactorUserIDs.loc[highFactorUserIDs['userID']==cuID][selectedFactor]
 
         
@@ -194,11 +194,10 @@ for cuID in uIDs:
         
     # Feature extraction 
     time_int = sat.getAdTimeInterval("Data/" + selectedContent + "_usersAdStartEndTimes.csv", cuID)
-    users[cuID][signalName][feature_code] = sat.get_timesingal_feature(sig_t, sig_p_x, time_int, feature_pars, feature_code)
+    users[cuID][sensorID][signalName][feature_code] = sat.get_timesingal_feature(sig_t, sig_p_x, time_int, feature_pars, feature_code)
 
 print(users)
-
-#for one user
+#%% Load data one user
 # uID =32
 # signal_x_df = getSignalDf(uID, sensorID, signalName, list(sensors[sensorID][1].keys())[0])
 
@@ -225,9 +224,9 @@ print(users)
 # #%% Feature extraction 
 
 # time_int = sat.getAdTimeInterval("Data/" + selectedContent + "_usersAdStartEndTimes.csv", uID)
-# users[uID][signalName][feature_code] = sat.get_timesingal_feature(sig_t, sig_p_x, time_int, code=feature_code)
+# users[uID][sensorID][signalName][feature_code] = sat.get_timesingal_feature(sig_t, sig_p_x, time_int, code=feature_code)
 
-# print(users[uID][signalName][feature_code])
+# print(users[uID][sensorID][signalName][feature_code])
 
 #%% Visual inspection 
 
@@ -235,9 +234,9 @@ if plotScatteQ: # 2D scatter plot
     # sat.scatter_sigs_MME(uIDs, users, signalName, feature_code)
     for uID in uIDs:
         if feature_code == 'std':
-            plt.scatter(users[uID][signalName][feature_code],users[uID][selectedFactor])
+            plt.scatter(users[uID][sensorID][signalName][feature_code],users[uID][selectedFactor])
         elif feature_code == 'slope':
-            plt.scatter(users[uID][signalName][feature_code][0],users[uID][selectedFactor])
+            plt.scatter(users[uID][sensorID][signalName][feature_code][0],users[uID][selectedFactor])
 
     plt.title(selectedFactor + ' vs '  + sensors[sensorID][0] + ' ' + signalName + ' ' + feature_code)
     plt.xlabel(sensors[sensorID][0] + ' ' + signalName + ' ' + feature_code)
