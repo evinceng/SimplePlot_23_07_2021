@@ -184,10 +184,11 @@ def lowpass_1D(sig_x, cut_f):
 # @arg min minimum after transformation
 # @arg max maximum after transformation
 # @return transformed signal
-def do_linear_transform(sig_x, min_tr=0, max_tr=1):
+def do_linear_transform(sig_t, sig_x, time_int =[], min_tr=0, max_tr=1):
     
-    # sig_s_x = sig_x # Do time cutting ? #did it before
-    
+    if time_int != []:
+        sig_t, sig_x = getCutSignal(sig_t, sig_x, time_int)
+        
     min_x, max_x = np.min(sig_x), np.max(sig_x) 
     if np.abs(max_x-min_x) < 0.001:
         k = 0
@@ -203,11 +204,12 @@ def do_linear_transform(sig_x, min_tr=0, max_tr=1):
 # @arg 
 # @return min_x
 # @return max_x 
-def get_scaling_pars(sig_x, feature_pars = [], code='standard'):
+def get_scaling_pars(sig_t, sig_x, time_int = [], feature_pars = [], code='standard'):
     
-    # todo evin add time cutting
-    # sig_s_x = sig_x # Do time cutting ? no already cut signal sent it to the function
-    
+    #sig_t is not used just need for getting cut signals.
+    if time_int != []:
+        sig_t, sig_x = getCutSignal(sig_t, sig_x, time_int)
+       
     if code == 'standard':
         min_percent = 5
         max_percent = 95
@@ -272,10 +274,10 @@ def plot_ReccurM(X_rp):
 #   Markov_TF: Markov transition fields https://pyts.readthedocs.io/en/stable/auto_examples/image/plot_mtf.html
 #   Dyn_Time_W: Dynamic Time wrapping: https://pyts.readthedocs.io/en/stable/auto_examples/metrics/plot_dtw.html#sphx-glr-auto-examples-metrics-plot-dtw-py
 # @return raw features as 2D numpy array    
-def get_timesingal_2Dfeature(sig_t, sig_x, feature_pars = [], code='Gram_AF'): #, time_int = [] did it before calling all the functions
+def get_timesingal_2Dfeature(sig_t, sig_x, time_int = [], feature_pars = [], code='Gram_AF'): 
     
-    # if time_int != []:
-    #     sig_x = sig_x # ToDo: cut signal
+    if time_int != []:
+        sig_t, sig_x = getCutSignal(sig_t, sig_x, time_int)
     
     if code == 'Gram_AF':
         X = sig_x.reshape(1, len(sig_x))
@@ -326,10 +328,10 @@ def get_derived_feature_(signal,feature, code, feature_function):
 #   exp_fit: exponential function fit
 #   
 # @return raw features as a 1D list      
-def get_timesingal_feature(sig_t, sig_x, feature_pars = [], code='std'): #, time_int = [] did it before calling all the functions
+def get_timesingal_feature(sig_t, sig_x, time_int = [], feature_pars = [], code='std'): # did it before calling all the functions
     
-    # if time_int != []:
-    #     sig_x = sig_x # ToDo: cut signal
+    if time_int != []:
+        sig_t, sig_x = getCutSignal(sig_t, sig_x, time_int)
     
     if code == 'std':
         return [np.std(sig_x)]
