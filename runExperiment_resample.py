@@ -33,7 +33,7 @@ freq = 30.0
 
 #change the root folder to your local folder
 # rootFolder = "C:/Users/evinao/Documents/user"
-rootFolder = "C:/Users/evinao/Documents/GitHub/SimplePlot_23_07_2021/output/user"
+rootFolder = "C:/Users/evinao/Dropbox (Lucami)/LivingLab MMEM data/output/user"
 # rootFolder = 'C:/Users/Andrej Košir/Dropbox (Lucami)/002-CurrPapers/000-ModelMME/00-Code/SplineTest/output/user'
 # uID = 3
 

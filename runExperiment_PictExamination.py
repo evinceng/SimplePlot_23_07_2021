@@ -27,7 +27,7 @@ signalName = 'AccX' #'pc_x' #'diameter' # 'EDA'
 outputFolderName = "PictorialProof/"
 
 
-rootFolder = "C:/Users/evinao/Dropbox (Lucami)/Lucami Team Folder/MMEM_Data/output/user"
+rootFolder = "C:/Users/evinao/Dropbox (Lucami)/LivingLab MMEM data/output/user"
 
 usersDictFileName = "Data/usersDict.xlsx"
 
