@@ -26,9 +26,9 @@ get_ipython().run_line_magic('matplotlib', 'qt5')
 
 
 
+calculatetck = False
 
-
-freq = 30.0
+freq = 128.0 #30.0
 
 
 #change the root folder to your local folder
@@ -265,7 +265,7 @@ def resample(uID, file, df, tckDict, fileName, plotIndex):
     xIn = np.array(df['timestamp_s'])
     if np.min(xIn[1:] - xIn[:-1]) < 0:
         decreasingTimeText = "SORTING:The time is decreasing in some part " + fileName
-        with open(rootFolder + str(uID) + "/Resampled/decreasingTimes.txt", 'w') as f:
+        with open(rootFolder + str(uID) + "/Resampled_128/decreasingTimes.txt", 'w') as f:
             f.write(decreasingTimeText)
         print(decreasingTimeText)
         df.sort_values("timestamp_s", inplace = True)
@@ -333,14 +333,18 @@ def resample(uID, file, df, tckDict, fileName, plotIndex):
         kIn = 3
         TsIn = 1.0/freq
         fCode = 1
-                
-        tck = intFuns.interpolateBS(xIn, yIn, tMin, tMax, kIn, TsIn, fCode)
+        
+        if calculatetck:
+            tck = intFuns.interpolateBS(xIn, yIn, tMin, tMax, kIn, TsIn, fCode)
                     
-        tckZip = zip(('t', 'c', 'k'), tck)
-        #ndarray is not serializable error if not convert it to list
-        tck_ZipDict = dict((x, y if isinstance(y, int) else y.tolist()) for x, y in tckZip)
-        tckDict[file][signalName] = tck_ZipDict
-        # print(tckDict[file][signalName])
+            tckZip = zip(('t', 'c', 'k'), tck)
+            #ndarray is not serializable error if not convert it to list
+            tck_ZipDict = dict((x, y if isinstance(y, int) else y.tolist()) for x, y in tckZip)
+            tckDict[file][signalName] = tck_ZipDict
+            print(tckDict[file][signalName])
+        else:
+            tckDict =  readTckDictFromJson(rootFolder + str(uID) + "/spline_tck.json")
+            tck = (tckDict[file][signalName]['t'], tckDict[file][signalName]['c'], tckDict[file][signalName]['k'])
         
         new_y = splev(xIn_resampled, tck)
         resampled_df[signalName] = new_y
@@ -351,12 +355,13 @@ def resample(uID, file, df, tckDict, fileName, plotIndex):
         plt.plot(xIn_resampled, new_y, color = 'r', label='Interp.')
         plt.legend()
         # plt.show()
-        plt.savefig(rootFolder + str(uID) + "/Figs/" + title + str(plotIndex) + ".jpg")
-        pickle.dump(fig, open(rootFolder + str(uID) + "/Figs/" + title + str(plotIndex) +'.pickle', 'wb')) # This is for Python 3 - py2 may need `file` instead of `open`
+        plt.savefig(rootFolder + str(uID) + "/Figs_128/" + title + str(plotIndex) + ".jpg")
+        if 'Acc' in signalName or signalName == 'diameter' or signalName == 'EDA' or signalName == 'HR' or signalName == 'GSR_Skin_Conductance_microSiemens' or signalName == 'Temperature_BMP280_Degrees Celsius':
+            pickle.dump(fig, open(rootFolder + str(uID) + "/Figs_128/" + title + str(plotIndex) +'.pickle', 'wb')) # This is for Python 3 - py2 may need `file` instead of `open`
         plt.close(fig)
         plotIndex += 1
         
-    resampled_df.to_csv(rootFolder + str(uID) + "/Resampled/" + fileName + "_resampled.csv")
+    resampled_df.to_csv(rootFolder + str(uID) + "/Resampled_128/" + fileName + "_resampled.csv")
     return plotIndex
 
 def loadFigFromPickleFile(filename):
@@ -382,8 +387,8 @@ def resampleuIDCsvFiles(rootFolder , uID):
         df = pd.read_csv(file)
         
         #create figs and resampled folders
-        pathlib.Path(rootFolder + str(uID) + "/Figs").mkdir(parents=True, exist_ok=True)
-        pathlib.Path(rootFolder + str(uID) + "/Resampled").mkdir(parents=True, exist_ok=True)
+        pathlib.Path(rootFolder + str(uID) + "/Figs_128").mkdir(parents=True, exist_ok=True)
+        pathlib.Path(rootFolder + str(uID) + "/Resampled_128").mkdir(parents=True, exist_ok=True)
                                     
         fileName = file.replace("_df_synced.csv", "")
         
@@ -430,12 +435,12 @@ def resampleuIDCsvFiles(rootFolder , uID):
             plotIndex = resample(uID, file, df, tckDict, fileName, plotIndex)
     
                     
-    writeTckDictsToJson(tckDict, rootFolder + str(uID) + "/spline_tck.json")
-    readTckDictFromJson(rootFolder + str(uID) + "/spline_tck.json")
+    # writeTckDictsToJson(tckDict, rootFolder + str(uID) + "/spline_tck.json")
+    # readTckDictFromJson(rootFolder + str(uID) + "/spline_tck.json")
     
     end_time = time.monotonic()
     print(timedelta(seconds=end_time - start_time))
-    with open(rootFolder + str(uID) + "/Resampled/ExecutionTime.txt", 'w') as f:
+    with open(rootFolder + str(uID) + "/Resampled_128/ExecutionTime.txt", 'w') as f:
         f.write(str(timedelta(seconds=end_time - start_time)))
            
 
@@ -444,7 +449,7 @@ def resampleAllFolders(rootFolder):
     #1,2,3,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,25, 26,27,28,29,30,31,32,33,34,35,36,
               # 37,38,39,46,47,48,49,50,51,52,53,54,55,56,57,58,60
               #2,3,4,5,6,7,8,
-    uIDlist = [9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,25, 26,27,28,29,30,31,32,33,34,35,36,
+    uIDlist = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,16,17,18,19,20,21,22,23,24,25, 26,27,28,29,30,31,32,33,34,35,36,
                37,38,39,46,47,48,49,50,51,52,53,54,55,56,57,58,60]
     
     for userid  in uIDlist:
