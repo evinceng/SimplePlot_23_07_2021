@@ -80,11 +80,13 @@ Created on Fri Sep 17 14:45:44 2021
 # avarage of two dataframes
 import pandas as pd
 
-lowList = [[2,1], [4,2], [8,4]]
+lowList = [[2,1], [4,2], [8,4], [10,6]]
 highList = [[3,2], [5,3], [9,5]]
 
 low_df = pd.DataFrame(lowList, columns=['a', 'b'])
 high_df = pd.DataFrame(highList, columns=['a', 'c'])
 new_df = pd.DataFrame()
 new_df['a'] = (low_df['a'] + high_df['a'])/2.0
+print(new_df)
+new_df = new_df.dropna(axis='rows')
 print(new_df)

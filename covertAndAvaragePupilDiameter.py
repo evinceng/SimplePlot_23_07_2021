@@ -91,8 +91,10 @@ for uID in uIDlist:
             right_eye_df = pd.read_csv(right_eye_df_filename)
             
             avarage_df = pd.DataFrame()
+            
             avarage_df['timestamp_s'] = left_eye_df['timestamp_s']
             avarage_df[avarageColName] = (left_eye_df[avarageColName]+right_eye_df[avarageColName])/2.0
+            avarage_df = avarage_df.dropna(axis='rows')
             if 'pupillabs' in file:
                 avarage_df[avarageColName] = avarage_df[avarageColName] *(tobii_diameter_mean/pupilLabs_diamter_mean)
                 #     sig_lp_x = sig_lp_x * (3.5/32) # 3.5 non pupil labs mean, 32 is pupillabs mean
