@@ -144,7 +144,7 @@ def get_video_and_ad_times(usersDictFileName, uID):
         c_end_ad_time = get_secs_from_str(users_dict[uID]['R' + str(ii+1)]) + ad_times_sec[C_ii][1]
     
         out_times_lst.append([c_start_video_time, c_start_ad_time, c_end_ad_time, c_end_video_time])
-        print(out_times_lst)
+        # print(out_times_lst)
     return out_times_lst
 
 
