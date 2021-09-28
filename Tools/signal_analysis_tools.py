@@ -53,7 +53,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import scipy.stats as sst
 import scipy.signal as ssig
-
+import Utils as util
 # Filtering
 from scipy.signal import butter,filtfilt
 
@@ -84,6 +84,11 @@ def getAdTimeInterval(fileName, uID):
     
     return times_df.loc[times_df['uID'] == uID]['AS'].iloc[0],times_df.loc[times_df['uID'] == uID]['AE'].iloc[0]
 
+def getTimeIntervalofR1andR4(usersDictFileName, uID):
+    out_times_lst = util.get_video_and_ad_times(usersDictFileName, uID)
+    return [out_times_lst[0][0], out_times_lst[-1][-1]]
+    
+
 #argument is the dataframe
 def getCutSignal_DF(df, signalName, time_int = []):
     if time_int == []:
@@ -97,8 +102,19 @@ def getCutSignal(sig_t, sig_p_x, time_int = []):
     if time_int == []:
         return sig_t, sig_p_x
     else:
-        ad_indices = np.where((sig_t >= time_int[0]) & (sig_t <= time_int[1]))[0]
+        ad_indices = np.where((sig_t >= time_int[0]) & (sig_t <= time_int[1]))[0]        
         return sig_t[ad_indices[0]: ad_indices[-1]], sig_p_x[ad_indices[0]: ad_indices[-1]]
+
+    
+def getAvarageOfMeanStds(meanStdList):
+    sum_mean = 0
+    sum_std = 0
+    size = len(meanStdList)
+    for item in meanStdList:
+        sum_mean = sum_mean + item[0]
+        sum_std = sum_std + item[1]
+    return sum_mean/size, sum_std/size
+
     
 def getF1oF23(feat_vec):
     return feat_vec[0]/(feat_vec[1]+feat_vec[2])
@@ -192,6 +208,7 @@ def do_linear_transform(sig_t, sig_x, time_int =[], min_tr=0, max_tr=1):
     min_x, max_x = np.min(sig_x), np.max(sig_x) 
     if np.abs(max_x-min_x) < 0.001:
         k = 0
+        print('k = 0000000')
     else:
         k = (max_tr - min_tr) / (max_x-min_x)
     n = min_tr - k*min_x
@@ -204,18 +221,19 @@ def do_linear_transform(sig_t, sig_x, time_int =[], min_tr=0, max_tr=1):
 # @arg 
 # @return min_x
 # @return max_x 
-def get_scaling_pars(sig_t, sig_x, time_int = [], feature_pars = [], code='standard'):
+def get_scaling_pars(sig_t, sig_x, time_int = [], feature_pars = [], code='standard', scaling_par=[]):
     
     #sig_t is not used just need for getting cut signals.
     if time_int != []:
         sig_t, sig_x = getCutSignal(sig_t, sig_x, time_int)
        
     if code == 'standard':
-        min_percent = 5
-        max_percent = 95
+        
+        min_percent = scaling_par[0]
+        max_percent = 1.0 - min_percent
         size = len(sig_x)
-        min_index = int(min_percent*size/100)
-        max_index = int(max_percent*size/100)
+        min_index = int(min_percent*size)
+        max_index = int(max_percent*size)
         
         sorted_sig_x = np.sort(sig_x)
         min_val = np.mean(sorted_sig_x[0:min_index])
@@ -328,7 +346,7 @@ def get_derived_feature_(signal,feature, code, feature_function):
 #   exp_fit: exponential function fit
 #   
 # @return raw features as a 1D list      
-def get_timesingal_feature(sig_t, sig_x, time_int = [], feature_pars = [], code='std'): # did it before calling all the functions
+def get_timesingal_feature(sig_t, sig_x, time_int = [], feature_pars = [], code='std'): 
     
     if time_int != []:
         sig_t, sig_x = getCutSignal(sig_t, sig_x, time_int)
@@ -336,8 +354,17 @@ def get_timesingal_feature(sig_t, sig_x, time_int = [], feature_pars = [], code=
     if code == 'std':
         return [np.std(sig_x)]
     
+    if code == 'mean':
+        return [np.mean(sig_x)]
+    
+    if code == 'kurtosis':
+        return [sst.kurtosis(sig_x)]
     
     if code == 'slope':
+        # print('--------------')
+        # print(sig_t)        
+        # print(sig_x)
+        # print('--------------')
         lin_reg_mod = linregress(sig_t, sig_x)
         return [lin_reg_mod.slope, lin_reg_mod.intercept]
     
@@ -360,13 +387,13 @@ def get_timesingal_feature(sig_t, sig_x, time_int = [], feature_pars = [], code=
         plt.plot(sig_f, spec_amp)
         
         # Define bands:
-        bands_lst = feature_pars
-        M = len(bands_lst)
+        # bands_lst = feature_pars
+        # M = len(bands_lst)
         feat_vec = []
-        feat_vec.append(sum(spec_amp[sig_f <= bands_lst[0]]))
-        for ii in range(len(bands_lst)-1):
-            feat_vec.append(sum(spec_amp[(bands_lst[ii] <= sig_f) & (sig_f < bands_lst[ii+1])]))
-        feat_vec.append(sum(spec_amp[bands_lst[-1] <= sig_f]))
+        # feat_vec.append(sum(spec_amp[sig_f <= bands_lst[0]]))
+        # for ii in range(len(bands_lst)-1):
+        #     feat_vec.append(sum(spec_amp[(bands_lst[ii] <= sig_f) & (sig_f < bands_lst[ii+1])]))
+        # feat_vec.append(sum(spec_amp[bands_lst[-1] <= sig_f]))
         
         print(feat_vec)
         return feat_vec
@@ -521,10 +548,13 @@ def correlate_sigs_MME_OnlyData(x_data, y_data, coeff_type):
     # Compute correlation
     if coeff_type == 'Pearson':
         r, p = sst.pearsonr(x_data, y_data)
+        effectSize = r**2
     if coeff_type == 'KendalTau':
         r, p = sst.kendalltau(x_data, y_data)
-
-    return r, p
+        effectSize = np.abs(r)
+           
+    
+    return r, p, effectSize
 
 # @brief visualise features and MME
 def scatter_sigs_MME(uIDs, users, signal_name, feature_code, mm_dim):
@@ -566,3 +596,27 @@ def plot_features_MME_3D(uIDs, users, signal_name, feature_codes, mm_dim):
     
     
     return 1
+
+
+# @brief gets generic effect size
+# @arg x 1D array of data
+# @arg y labels od groups, two classes only
+def get_generic_es(x, y):
+    
+    labels = np.unique(y)
+    M = len(labels)
+    if M != 2:
+        return 0
+    
+    x_G1 = x[y==labels[0]]
+    x_G2 = x[y==labels[1]]
+    
+    n1, n2 = len(x_G1), len(x_G2)
+    mu1, mu2 = np.mean(x_G1), np.mean(x_G2)
+    sd1, sd2 = np.std(x_G1), np.std(x_G2)
+    
+    pooled_sd = np.sqrt(((n1-1)*sd1*sd1 + (n2-1)*sd2*sd2) / (n1 + n2 - 2))
+
+    gen_es = np.abs(mu2-mu1) / pooled_sd
+    
+    return gen_es
