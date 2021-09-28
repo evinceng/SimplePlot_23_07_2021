@@ -17,22 +17,61 @@ from pyEDA.main import *
 
 
 
+# import numpy as np
+# a = [10, 2, 8, 4, 5, 6, 7, 3, 9, 1]
+# # print(np.percentile(a,10)) # gives the 95th percentile
+
+# min_percent = 20
+# max_percent = 80
+# size = len(a)
+# min_index = int(min_percent/size)
+# max_index = int(max_percent/size)
+# # print(a.mean())
+# # size = df[col].shape[0]
+# # outlier_min_percent = int(min_percent/100*size)
+# # outlier_max_percent = int(max_percent/100*size)
+
+# sorted_a = np.sort(a)
+# min_val = np.mean(sorted_a[0:min_index])
+# max_val = np.mean(sorted_a[max_index:size])
+# print(min_val)
+# print(max_val)
+
+
+
+# lowList = [[2,1], [4,2], [8,4]]
+# sum_mean = 0
+# sum_std = 0
+# for item in lowList:
+#     sum_mean = sum_mean + item[0]
+#     sum_std = sum_std + item[1]
+
+# print(sum_mean/len(lowList))
+# print(sum_std/len(lowList))
+
+# scatter plot
+import matplotlib.pyplot as plt
 import numpy as np
-a = [10, 2, 8, 4, 5, 6, 7, 3, 9, 1]
-# print(np.percentile(a,10)) # gives the 95th percentile
+import pandas as pd
 
-min_percent = 20
-max_percent = 80
-size = len(a)
-min_index = int(min_percent/size)
-max_index = int(max_percent/size)
-# print(a.mean())
-# size = df[col].shape[0]
-# outlier_min_percent = int(min_percent/100*size)
-# outlier_max_percent = int(max_percent/100*size)
+population = np.random.rand(100)
+Area = np.random.randint(100,600,100)
+continent =['North America','Europe', 'Asia', 'Australia']*25
 
-sorted_a = np.sort(a)
-min_val = np.mean(sorted_a[0:min_index])
-max_val = np.mean(sorted_a[max_index:size])
-print(min_val)
-print(max_val)
+df = pd.DataFrame(dict(population=population, Area=Area, continent = continent))
+
+import seaborn as sns
+ax=sns.lmplot(x='population', y='Area', data=df, hue='continent', fit_reg=False)
+
+plt.axhline(y=10, color='r', linestyle='-')
+
+plt.show()
+
+# fig, ax = plt.subplots()
+
+# colors = {'North America':'red', 'Europe':'green', 'Asia':'blue', 'Australia':'yellow'}
+
+
+# ax.scatter(df['population'], df['Area'], c=df['continent'].map(colors))
+
+# plt.show()
