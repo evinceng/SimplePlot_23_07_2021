@@ -4,10 +4,10 @@ Created on Fri Sep 17 14:45:44 2021
 
 @author: evinao
 """
-import pandas as pd
-import heartpy as hp
-import neurokit2 as nk
-from pyEDA.main import *
+# import pandas as pd
+# import heartpy as hp
+# import neurokit2 as nk
+# from pyEDA.main import *
 # data = [['a', 1], ['b', 2], ['c',3], ['d', 4], ['e', 5]] 
 # df = pd.DataFrame(data, columns=['signal', 'timestamp_s'])
 
@@ -49,29 +49,42 @@ from pyEDA.main import *
 # print(sum_mean/len(lowList))
 # print(sum_std/len(lowList))
 
-# scatter plot
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
+# # scatter plot
+# import matplotlib.pyplot as plt
+# import numpy as np
+# import pandas as pd
 
-population = np.random.rand(100)
-Area = np.random.randint(100,600,100)
-continent =['North America','Europe', 'Asia', 'Australia']*25
+# population = np.random.rand(100)
+# Area = np.random.randint(100,600,100)
+# continent =['North America','Europe', 'Asia', 'Australia']*25
 
-df = pd.DataFrame(dict(population=population, Area=Area, continent = continent))
+# df = pd.DataFrame(dict(population=population, Area=Area, continent = continent))
 
-import seaborn as sns
-ax=sns.lmplot(x='population', y='Area', data=df, hue='continent', fit_reg=False)
+# import seaborn as sns
+# ax=sns.lmplot(x='population', y='Area', data=df, hue='continent', fit_reg=False)
 
-plt.axhline(y=10, color='r', linestyle='-')
-
-plt.show()
-
-# fig, ax = plt.subplots()
-
-# colors = {'North America':'red', 'Europe':'green', 'Asia':'blue', 'Australia':'yellow'}
-
-
-# ax.scatter(df['population'], df['Area'], c=df['continent'].map(colors))
+# plt.axhline(y=10, color='r', linestyle='-')
 
 # plt.show()
+
+# # fig, ax = plt.subplots()
+
+# # colors = {'North America':'red', 'Europe':'green', 'Asia':'blue', 'Australia':'yellow'}
+
+
+# # ax.scatter(df['population'], df['Area'], c=df['continent'].map(colors))
+
+# # plt.show()
+
+
+# avarage of two dataframes
+import pandas as pd
+
+lowList = [[2,1], [4,2], [8,4]]
+highList = [[3,2], [5,3], [9,5]]
+
+low_df = pd.DataFrame(lowList, columns=['a', 'b'])
+high_df = pd.DataFrame(highList, columns=['a', 'c'])
+new_df = pd.DataFrame()
+new_df['a'] = (low_df['a'] + high_df['a'])/2.0
+print(new_df)

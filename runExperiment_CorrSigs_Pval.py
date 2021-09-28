@@ -73,15 +73,15 @@ tobiiSignals = {'accelerometer': ['ac_x', 'ac_y', 'ac_z'],
 
 sensorID = 1
 
-# #pupillabs
-# signalName = 'diameter'
-# sensors = {1:['pupillabs', {'left_eye_2d':['diameter']}]}
-# sensorsFeaturePars = {1:['pupillabs', {'diameter':[0, 1.6, 4]}]}
-# cut_f = 0.27 # Hertz
+#pupillabs
+signalName = 'diameter'
+sensors = {1:['pupillabs', {'right_eye_2d':['diameter']}]}
+sensorsFeaturePars = {1:['pupillabs', {'diameter':[0, 1.6, 4]}]}
+cut_f = 0.27 # Hertz
 
-# tobii
+# #tobii
 # signalName = 'diameter'
-# sensors = {1:['tobii', {'pupilDim_left_eye':['diameter']}]}
+# sensors = {1:['tobii', {'pupilDim_right_eye':['diameter']}]}
 # sensorsFeaturePars = {1:['tobii', {'diameter':[0, 1.6, 4]}]}
 # cut_f = 0.27 # 4Hertz = 4/15
 
@@ -95,10 +95,10 @@ sensorID = 1
 # sensorsFeaturePars = {1:['empatica', {'HR':[0, 0.06, 0.12, 0.20]}]} #[0, 0.06, 0.12, 0.20] #0, 0.015, 0.030, 0.045
 # cut_f = 1.8 # Hertz
 
-signalName = 'AccX'
-sensors = {1:['empatica', {'ACC':['AccX']}]}
-sensorsFeaturePars = {1:['empatica', {'AccX':[0, 0.075, 0.147, 0.223, 0.280]}]}
-cut_f = 0.3 # Hertz
+# signalName = 'AccX'
+# sensors = {1:['empatica', {'ACC':['AccX']}]}
+# sensorsFeaturePars = {1:['empatica', {'AccX':[0, 0.075, 0.147, 0.223, 0.280]}]}
+# cut_f = 0.3 # Hertz
 
 # signalName = 'GSR_Skin_Conductance_microSiemens'
 # sensors = {1:['shimmer', {'':['GSR_Skin_Conductance_microSiemens']}]}
@@ -192,7 +192,7 @@ feature_function = ''
 # feature_pars = sensorsFeaturePars[sensorID][1][signalName]
 # feature_function = ''
 
-isOnlyLowHighScoreUsers = True #True 
+isOnlyLowHighScoreUsers = False #True 
 isOneUser = False #True
 
 doTransformation = True #True
@@ -475,7 +475,7 @@ if doNormalizationQ:
 
 #write mean and std to files
 meanColNames = ['uID','inside_room_Mean', 'inside_room_Std', 'inside_room_Kurtosis',selectedFactor]
-meanFileNameBase = outputFolder + selectedContent + '/' + sensors[sensorID][0] +'/Mean_Std_Kurtosis_inside_room_' + sensors[sensorID][0]+ '_' + signalName + '_' + selectedFactor 
+meanFileNameBase = outputFolder + selectedContent + '/' + sensors[sensorID][0] +'/Mean_Std_Kurtosis_inside_room_' + sensors[sensorID][0] + '_'+  list(sensors[sensorID][1].keys())[0] + '_' + signalName + '_' + selectedFactor 
 if isOnlyLowHighScoreUsers:
     low_mean_df = pd.DataFrame(data=lowFactorUsersMeanStd, columns= meanColNames)
     low_mean_df.to_csv(meanFileNameBase + '_low.csv', index=False)
@@ -514,7 +514,7 @@ if plotNormParsQ:
     plt.title('uID' + ' vs '  + signalName + ' inside_room_Mean')
     # plt.xlabel(sensors[sensorID][0] + ' ' + signalName + ' ' + feature_code + ' ' + )
     plt.ylabel(sensors[sensorID][0] + ' ' + signalName + 'inside_room_Mean')
-    normFname =  outputFolder + selectedContent + '/' + sensors[sensorID][0] +'/Normalization_' + sensors[sensorID][0]+ '_' + signalName + '_' + selectedFactor 
+    normFname =  outputFolder + selectedContent + '/' + sensors[sensorID][0] +'/Normalization_' + sensors[sensorID][0] + '_' + signalName + '_' + selectedFactor 
     plt.savefig(normFname + ".jpg")
     pickle.dump(fig, open(normFname +'.pickle', 'wb'))
     plt.show()
