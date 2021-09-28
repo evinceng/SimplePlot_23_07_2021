@@ -95,20 +95,20 @@ sensorID = 1
 # sensorsFeaturePars = {1:['empatica', {'HR':[0, 0.06, 0.12, 0.20]}]} #[0, 0.06, 0.12, 0.20] #0, 0.015, 0.030, 0.045
 # cut_f = 1.8 # Hertz
 
-# signalName = 'AccX'
-# sensors = {1:['empatica', {'ACC':['AccX']}]}
-# sensorsFeaturePars = {1:['empatica', {'AccX':[0, 0.075, 0.147, 0.223, 0.280]}]}
-# cut_f = 0.3 # Hertz
+signalName = 'AccX'
+sensors = {1:['empatica', {'ACC':['AccX']}]}
+sensorsFeaturePars = {1:['empatica', {'AccX':[0, 0.075, 0.147, 0.223, 0.280]}]}
+cut_f = 0.3 # Hertz
 
 # signalName = 'GSR_Skin_Conductance_microSiemens'
 # sensors = {1:['shimmer', {'':['GSR_Skin_Conductance_microSiemens']}]}
 # sensorsFeaturePars = {1:['shimmer', {'GSR_Skin_Conductance_microSiemens':[0, 0.015, 0.045, 0.075]}]} #[0, 0.015, 0.045, 0.060, 0.075]
 # cut_f = 0.12 # Hertz
 
-signalName = 'Temperature_BMP280_Degrees Celsius'
-sensors = {1:['shimmer', {'':['Temperature_BMP280_Degrees Celsius']}]}
-sensorsFeaturePars = {1:['shimmer', {'Temperature_BMP280_Degrees Celsius':[0, 0.075, 0.147, 0.223, 0.280]}]}
-cut_f = 0.02 # Hertz
+# signalName = 'Temperature_BMP280_Degrees Celsius'
+# sensors = {1:['shimmer', {'':['Temperature_BMP280_Degrees Celsius']}]}
+# sensorsFeaturePars = {1:['shimmer', {'Temperature_BMP280_Degrees Celsius':[0, 0.075, 0.147, 0.223, 0.280]}]}
+# cut_f = 0.02 # Hertz
 
 
 # signalName = 'BVP'
@@ -192,7 +192,7 @@ feature_function = ''
 # feature_pars = sensorsFeaturePars[sensorID][1][signalName]
 # feature_function = ''
 
-isOnlyLowHighScoreUsers = False #True 
+isOnlyLowHighScoreUsers = True #True 
 isOneUser = False #True
 
 doTransformation = True #True
@@ -384,11 +384,12 @@ for cuID in uIDs:
         users[cuID][sensorID][signalName]['std'] = inside_room_std               
         users[cuID][sensorID][signalName]['kurtosis'] = inside_room_kurtosis
         # add lists kurtosis...
+        low_factor_userID_list = lowFactorUserIDs['uID'].tolist()
         if isOnlyLowHighScoreUsers:
-            if cuID in lowFactorUserIDs['uID']:
-                lowFactorUsersMeanStd.append([cuID, inside_room_mean[0], inside_room_std][0], inside_room_kurtosis[0], users[cuID][selectedFactor])
+            if cuID in low_factor_userID_list:
+                lowFactorUsersMeanStd.append([cuID, inside_room_mean[0], inside_room_std[0], inside_room_kurtosis[0], users[cuID][selectedFactor]])
             else:
-                highFactorUsersMeanStd.append([cuID, inside_room_mean[0], inside_room_std][0], inside_room_kurtosis[0],users[cuID][selectedFactor])
+                highFactorUsersMeanStd.append([cuID, inside_room_mean[0], inside_room_std[0], inside_room_kurtosis[0],users[cuID][selectedFactor]])
         else:
             allUsersMeanStd.append([cuID, inside_room_mean[0], inside_room_std[0], inside_room_kurtosis[0],users[cuID][selectedFactor]])
         #subtract mean from the signal value
@@ -419,7 +420,8 @@ for cuID in uIDs:
         fig.tight_layout()
         plt.title("uID_" + str(cuID) +  "_"  + sensors[sensorID][0] +  "_" + signalName)
         # plt.show()
-        fName = outputFolder + selectedContent + '/' + sensors[sensorID][0] + "/uID_" + str(cuID) + "_" + signalName + "_preprocessed"
+        Path(outputFolder + selectedContent + '/' + sensors[sensorID][0] + '/preprocessed').mkdir(parents=True, exist_ok=True)
+        fName = outputFolder + selectedContent + '/' + sensors[sensorID][0] + "/preprocessed/uID_" + str(cuID) + "_" + signalName + "_preprocessed"
         plt.savefig(fName + ".jpg")
         pickle.dump(fig, open(fName +'.pickle', 'wb')) # This is for Python 3 - py2 may need `file` instead of `open`
         plt.close(fig)
@@ -488,23 +490,33 @@ else:
 if plotNormParsQ:
                    
     if isOnlyLowHighScoreUsers:
-        ax = sns.scatterplot(data=low_mean_df+high_mean_df, x='uID', y='inside_room_Mean', hue=selectedFactor)
-        low_mean, low_std = sat.getAvarageOfMeanStds(lowFactorUsersMeanStd)
-        plt.axhline(y=low_mean, color='r', linestyle='-')
-        plt.axhline(y=low_mean-low_std, color='b', linestyle='--')
-        plt.axhline(y=low_mean+low_std, color='b', linestyle='--')
+        low_high_df = pd.concat([low_mean_df,high_mean_df])
+        ax = sns.scatterplot(data=low_high_df, x='uID', y='inside_room_Mean', hue=selectedFactor)
+        
+        low_mean, low_std = sat.getAvarageOfMeanStds(low_mean_df, 'inside_room_Mean', 'inside_room_Std')
+        plt.axhline(y=low_mean, color='r', linestyle='-', label='low_mean')
+        plt.axhline(y=low_mean-low_std, color='m', linestyle='--', label='low_mean-low_std')
+        plt.axhline(y=low_mean+low_std, color='m', linestyle='--', label='low_mean+low_std')
    
-        high_mean, high_std = sat.getAvarageOfMeanStds(highFactorUsersMeanStd)
-        plt.axhline(y=high_mean, color='g', linestyle='-')
-        plt.axhline(y=high_mean-high_std, color='b', linestyle='--')
-        plt.axhline(y=high_mean+high_std, color='b', linestyle='--')
+        high_mean, high_std = sat.getAvarageOfMeanStds(high_mean_df, 'inside_room_Mean', 'inside_room_Std')
+        plt.axhline(y=high_mean, color='g', linestyle='-', label='high_mean')
+        plt.axhline(y=high_mean-high_std, color='b', linestyle='--', label='high_mean-high_std')
+        plt.axhline(y=high_mean+high_std, color='b', linestyle='--', label='high_mean+high_std')
     else:
         ax = sns.scatterplot(data=mean_df, x='uID', y='inside_room_Mean', hue=selectedFactor)
-        mean, std = sat.getAvarageOfMeanStds(allUsersMeanStd)
-        plt.axhline(y=mean, color='g', linestyle='-')
-        plt.axhline(y=mean-std, color='b', linestyle='--')
-        plt.axhline(y=mean+std, color='b', linestyle='--')
-    
+        mean, std = sat.getAvarageOfMeanStds(mean_df, 'inside_room_Mean', 'inside_room_Std')
+        plt.axhline(y=mean, color='g', linestyle='-', label='mean')
+        plt.axhline(y=mean-std, color='b', linestyle='--', label='mean-std')
+        plt.axhline(y=mean+std, color='b', linestyle='--', label='mean+std')
+        
+    fig = ax.get_figure()
+    plt.legend()
+    plt.title('uID' + ' vs '  + signalName + ' inside_room_Mean')
+    # plt.xlabel(sensors[sensorID][0] + ' ' + signalName + ' ' + feature_code + ' ' + )
+    plt.ylabel(sensors[sensorID][0] + ' ' + signalName + 'inside_room_Mean')
+    normFname =  outputFolder + selectedContent + '/' + sensors[sensorID][0] +'/Normalization_' + sensors[sensorID][0]+ '_' + signalName + '_' + selectedFactor 
+    plt.savefig(normFname + ".jpg")
+    pickle.dump(fig, open(normFname +'.pickle', 'wb'))
     plt.show()
 
 if isOnlyLowHighScoreUsers and feature_code == 'spec_comp':
@@ -583,7 +595,18 @@ for feat in feature_types:
                 x_data, y_data = [v[sensorID][signalName][feat] for k,v in users.items()], [v[selectedFactor] for k,v in users.items()] # userID [k for k,v in users.items()], 
             
             r, p, es = sat.correlate_sigs_MME_OnlyData(x_data, y_data, coeff_type) #np.array(y_data, dtype='float'
-            genericEffectSize = sat.get_generic_es(x_data, y_data)
+            
+            #generic effect size works with 2 classes
+            if isOnlyLowHighScoreUsers:  
+                low_factor_userID_list = lowFactorUserIDs['uID'].tolist()
+                if feat == 'slope' or feat == 'total_var' or feat == 'num_of_peaks' or feat == 'mean' or feat == 'std' or feat == 'kurtosis':
+                    gen_x_data, gen_y_data = [v[sensorID][signalName][feat][0] for k,v in users.items()], [0 if k in low_factor_userID_list else 1  for k,v in users.items()]
+                else:
+                    gen_x_data, gen_y_data = [v[sensorID][signalName][feat] for k,v in users.items()], [0 if k in low_factor_userID_list else 1  for k,v in users.items()]
+                
+                genericEffectSize = sat.get_generic_es(np.array(gen_x_data), np.array(gen_y_data))
+            else: 
+                genericEffectSize = 0
             print(signalName + ' ' + feat)
             print("r = " + str(r))
             print("p = "+ str(p))
@@ -605,10 +628,10 @@ for feat in feature_types:
             df.to_latex(fName + '_pval.tex', index=False)
             
             if not os.path.isfile(pValuesFileName):
-                df.to_csv(pValuesFileName)
+                df.to_csv(pValuesFileName, index=False)
             else:
                 #skip duplicates if possible
-                df.to_csv(pValuesFileName, mode='a', header=False)
+                df.to_csv(pValuesFileName, mode='a', header=False, index=False)
     
 
 # plot the mean and std dev of features, vertical lines
@@ -639,4 +662,4 @@ if plot3D:
 
 
 # Utils.loadFigFromPickleFile('C:/Users/evinao/Documents/GitHub/SimplePlot_23_07_2021/SignalCorrelation/C1/empatica/uID_5_EDA_preprocessed.pickle')
-Utils.loadFigFromPickleFile('C:/Users/evinao/Documents/GitHub/SimplePlot_23_07_2021/SignalCorrelation/C1/empatica/AE_empatica_EDA_spec_comp sig_f vs sig_comp.pickle')
+# Utils.loadFigFromPickleFile('C:/Users/evinao/Documents/GitHub/SimplePlot_23_07_2021/SignalCorrelation/C1/empatica/AE_empatica_EDA_spec_comp sig_f vs sig_comp.pickle')

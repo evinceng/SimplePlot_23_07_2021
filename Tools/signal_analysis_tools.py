@@ -106,14 +106,8 @@ def getCutSignal(sig_t, sig_p_x, time_int = []):
         return sig_t[ad_indices[0]: ad_indices[-1]], sig_p_x[ad_indices[0]: ad_indices[-1]]
 
     
-def getAvarageOfMeanStds(meanStdList):
-    sum_mean = 0
-    sum_std = 0
-    size = len(meanStdList)
-    for item in meanStdList:
-        sum_mean = sum_mean + item[0]
-        sum_std = sum_std + item[1]
-    return sum_mean/size, sum_std/size
+def getAvarageOfMeanStds(meanStd_df, mean_ColName, std_ColName):
+    return np.mean(meanStd_df[mean_ColName]), np.mean(meanStd_df[std_ColName])
 
     
 def getF1oF23(feat_vec):
