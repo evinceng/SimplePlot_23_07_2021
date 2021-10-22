@@ -66,6 +66,9 @@ from scipy.fft import fft, fftfreq
 # Features 
 import tsfresh 
 
+# for HR signals
+import neurokit2 as nk
+
 
 # 2D features
 from mpl_toolkits.axes_grid1 import ImageGrid
@@ -111,13 +114,25 @@ def getAvarageOfMeanStds(meanStd_df, mean_ColName, std_ColName):
 
     
 def getF1oF23(feat_vec):
-    return feat_vec[0]/(feat_vec[1]+feat_vec[2])
+    res = [feat_vec[0]/(feat_vec[1]+feat_vec[2])]
+    
+    return 0 if res != res or np.isinf(res)  else res
+
+def getF2oF13(feat_vec):
+    res = [feat_vec[1]/(feat_vec[0]+feat_vec[2])]
+    return 0 if res != res or np.isinf(res)  else res
+
+def getF3oF12(feat_vec):
+    res = [feat_vec[2]/(feat_vec[0]+feat_vec[1])]
+    return 0 if res != res or np.isinf(res)  else res
 
 def getF2oF3(feat_vec):
-    return feat_vec[1]/feat_vec[2]
+    res = feat_vec[1]/feat_vec[2]
+    return 0 if res != res or np.isinf(res)  else res
 
 def getF1oF2(feat_vec):
-    return feat_vec[0]/feat_vec[1]
+    res = feat_vec[0]/feat_vec[1]
+    return 0 if res != res or np.isinf(res)  else res
 
 def getFxoFy(feat_vec, x, y):
     dividing = 0
@@ -126,8 +141,9 @@ def getFxoFy(feat_vec, x, y):
         dividing = dividing + feat_vec[i-1]
     for i in y:
         divider = divider + feat_vec[i-1]
-        
-    return dividing/divider
+    
+    res = dividing/divider
+    return 0 if res != res or np.isinf(res)  else res
 
 
 # @brief get peaks of a signal
@@ -348,13 +364,13 @@ def get_timesingal_feature(sig_t, sig_x, time_int = [], feature_pars = [], code=
     if code == 'std':
         return [np.std(sig_x)]
     
-    if code == 'mean':
+    elif code == 'mean':
         return [np.mean(sig_x)]
     
-    if code == 'kurtosis':
+    elif code == 'kurtosis':
         return [sst.kurtosis(sig_x)]
     
-    if code == 'slope':
+    elif code == 'slope':
         # print('--------------')
         # print(sig_t)        
         # print(sig_x)
@@ -362,7 +378,7 @@ def get_timesingal_feature(sig_t, sig_x, time_int = [], feature_pars = [], code=
         lin_reg_mod = linregress(sig_t, sig_x)
         return [lin_reg_mod.slope, lin_reg_mod.intercept]
     
-    if code == 'spec_comp':
+    elif code == 'spec_comp':
         spec_comp = fft(sig_x)
         
         N = len(sig_x)
@@ -371,7 +387,7 @@ def get_timesingal_feature(sig_t, sig_x, time_int = [], feature_pars = [], code=
         
         return sig_f, spec_comp    
     
-    if code == 'spec_amp':
+    elif code == 'spec_amp':
         spec_comp = fft(sig_x)
         spec_amp = np.abs(spec_comp)
         
@@ -393,14 +409,14 @@ def get_timesingal_feature(sig_t, sig_x, time_int = [], feature_pars = [], code=
         return feat_vec
     
     
-    if code == 'spec_phs':
+    elif code == 'spec_phs':
         spec_comp = fft(sig_x)
         spec_phs = np.angle(spec_comp)
         
         N = len(sig_x)
         sample_rate = 30
         sig_f = fftfreq(N, 1 / sample_rate)
-        plt.plot(sig_f, spec_phs)
+        # plt.plot(sig_f, spec_phs)
         
         # Define bands:
         bands_lst = feature_pars
@@ -413,7 +429,7 @@ def get_timesingal_feature(sig_t, sig_x, time_int = [], feature_pars = [], code=
         
         return feat_vec
     
-    if code == 'spec_pow':
+    elif code == 'spec_pow':
         # sig_x = sig_x - np.mean(sig_x)
         spec_comp = fft(sig_x)
         spec_pow = np.abs(spec_comp)**2
@@ -435,7 +451,7 @@ def get_timesingal_feature(sig_t, sig_x, time_int = [], feature_pars = [], code=
         return feat_vec
 
 
-    if code == 'speed':
+    elif code == 'speed':
         
         dt = 1.0/30.0
         c_speed = (sig_x[1:]-sig_x[:-1]) / dt 
@@ -443,39 +459,79 @@ def get_timesingal_feature(sig_t, sig_x, time_int = [], feature_pars = [], code=
         return speed
 
 
-    if code == 'volume':
+    elif code == 'volume':
         
         volume = np.sum(sig_x)       
         return volume
 
-    if code == 'periodogram':
+    elif code == 'periodogram':
         freqs, pow_dens = ssig.periodogram(sig_x)    
         return [freqs, pow_dens]
     
-    if code == 'peaks':
+    elif code == 'peaks':
         cut_f = feature_pars[0]
         peaks, props = get_peaks(sig_t, sig_x, cut_f)
         return [peaks, props]
     
-    if code == 'num_of_peaks':
+    elif code == 'num_of_peaks':
         cut_f = feature_pars[0]
         peaks, props = get_peaks(sig_t, sig_x, cut_f)
         return [len(peaks)]
     
     
-    if code == 'monotone_ints':
+    elif code == 'monotone_ints':
         cut_f = feature_pars[0]
         monot_ints = get_monotone_ints(sig_t, sig_x, cut_f)
         return monot_ints
     
-    if code == 'exp_fit':
+    elif code == 'exp_fit':
         return [1,1,1]
     
 
-    if code == 'total_var':
+    elif code == 'total_var':
         total_var = tsfresh.feature_extraction.feature_calculators.absolute_sum_of_changes(sig_x)
         return [total_var]  
     
+    elif code == 'ECG_R_Peaks':
+        # Extract R-peaks locations
+        _, rpeaks = nk.ecg_peaks(sig_x, sampling_rate=feature_pars[0])
+        return rpeaks['ECG_R_Peaks']
+        #if want to return not nan values (len([x for x in rpeaks if x==x])) #this removes nan values since nan !=nan
+    
+    elif code == 'ECG_T_Peaks':
+        _, rpeaks = nk.ecg_peaks(sig_x, sampling_rate=feature_pars[0])
+        if len(rpeaks['ECG_R_Peaks']) != 0:
+            _, waves_peak = nk.ecg_delineate(sig_x, rpeaks, sampling_rate=feature_pars[0], method="peak")
+            return waves_peak['ECG_T_Peaks']
+        else:
+            print('Empty rpeaks value!!!!!!!!!!')
+            return []
+    
+    elif code == 'ECG_P_Peaks':        
+        _, rpeaks = nk.ecg_peaks(sig_x, sampling_rate=feature_pars[0])
+        if len(rpeaks['ECG_R_Peaks']) != 0:
+            _, waves_peak = nk.ecg_delineate(sig_x, rpeaks, sampling_rate=feature_pars[0], method="peak")
+            return waves_peak['ECG_P_Peaks']
+        else:
+            print('Empty rpeaks value!!!!!!!!!!')
+            return []
+    elif code == 'ECG_Q_Peaks':
+        _, rpeaks = nk.ecg_peaks(sig_x, sampling_rate=feature_pars[0])
+        if len(rpeaks['ECG_R_Peaks']) != 0:        
+             _, waves_peak = nk.ecg_delineate(sig_x, rpeaks, sampling_rate=feature_pars[0], method="peak")
+             return waves_peak['ECG_Q_Peaks']
+        else:
+            print('Empty rpeaks value!!!!!!!!!!')
+            return []
+    
+    elif code == 'ECG_S_Peaks':
+        _, rpeaks = nk.ecg_peaks(sig_x, sampling_rate=feature_pars[0])
+        if len(rpeaks['ECG_R_Peaks']) != 0:
+            _, waves_peak = nk.ecg_delineate(sig_x, rpeaks, sampling_rate=feature_pars[0], method="peak")
+            return waves_peak['ECG_S_Peaks']
+        else:
+            print('Empty rpeaks value!!!!!!!!!!')
+            return []
 '''
 # ---------------------------------------
 # Test it    
@@ -538,6 +594,8 @@ def correlate_sigs_MME(uIDs, users, signal_name, feature_code, mm_dim, coeff_typ
 # @return r, p
 # @note: 
 def correlate_sigs_MME_OnlyData(x_data, y_data, coeff_type):
+    x_data = [0 if x != x or x ==-np.inf or x == np.inf else x for x in x_data]
+    y_data = [0 if x != x or x ==-np.inf or x == np.inf else x for x in y_data]
     
     # Compute correlation
     if coeff_type == 'Pearson':
