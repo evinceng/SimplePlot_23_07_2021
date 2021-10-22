@@ -16,7 +16,7 @@ selectedFactor = 'F1'
 selectedContent = 'C1'
 
 userSensorContentFileName =  "Data/userContentSensorDict.csv"
-
+userIDColumnName = 'uID'
 # lowFactorUserIDs = [14,16,17,10] #tobii [14,16,17,10] # empatica, shimmer pupillabs [1,2,3,4]
 # highFactorUserIDs = [50,51,52,53] # empattica, shimmer [5,6,7,8] # pupillabs [33,34,35,36] #tobii
 
@@ -52,7 +52,8 @@ pupillabsSignals = {'left_eye_2d':['norm_pos_x', 'norm_pos_y', 'diameter', 'elli
            'gaze_normal0_z', 'gaze_normal1_x', 'gaze_normal1_y',
            'gaze_normal1_z']}
            
-tobiiSignals = {'accelerometer': ['ac_x', 'ac_y', 'ac_z'], 
+tobiiSignals = {'diameter':['diameter'],
+                'accelerometer': ['ac_x', 'ac_y', 'ac_z'], 
                 'gazeDirection_left_eye' : ['gd_x', 'gd_y', 'gd_z'],
                 'gazeDirection_right_eye' : ['gd_x', 'gd_y', 'gd_z'],
            'gazePosition': ['gp_x', 'gp_y', 'gp_latency'],
@@ -197,7 +198,7 @@ def getUsersSignalsOfOneContent(fileName, sensors, sensorID, contentID):
     sensorContentStr = sensors[sensorID][0] + '_' + str(contentID)
     usersContent_df = usersContent_df.loc[usersContent_df[sensorContentStr] == 1]
     # print(usersContent_df.head())
-    return usersContent_df['userID']
+    return usersContent_df[userIDColumnName]
 
 
 # create the figures for one sensor-signal 
@@ -229,7 +230,13 @@ def createFiguresForAll(pictOutputFolder, selectedFactor, contentID, sensors, us
                                                             sensorFileNameExt)        
         
 
-# createFiguresForAll(pictOutputFolder, selectedFactor, selectedContent, sensors, userSensorContentFileName, factorScoresFileName)  
+createFiguresForAll(pictOutputFolder, selectedFactor, selectedContent, sensors, userSensorContentFileName, factorScoresFileName)  
+
+# Utils.loadFigFromPickleFile(outputFolderName + 'C1/empatica/F2_empatica_HR_HR_2021_10_19-11-58-51.pickle')
+# Utils.loadFigFromPickleFile(outputFolderName + 'C1/tobii/F1_tobii_diameter_diameter_2021_10_19-12-59-13.pickle')
+# Utils.loadFigFromPickleFile(outputFolderName + 'C1/empatica/F2_empatica_ACC_AccX_2021_10_19-11-58-38.pickle')
+
+
 
 # 6 users  
 # Utils.loadFigFromPickleFile(outputFolderName + 'C1/empatica/F1_empatica_ACC_AccX_2021_09_07-12-32-02.pickle')
@@ -246,7 +253,7 @@ def createFiguresForAll(pictOutputFolder, selectedFactor, contentID, sensors, us
 # Utils.loadFigFromPickleFile(outputFolderName + 'C1/shimmer/F1_shimmer__Accel_WR_Y_m-(s^2)_2021_09_07-12-34-25.pickle')
 # Utils.loadFigFromPickleFile(outputFolderName + 'C1/shimmer/F1_shimmer__Accel_WR_Z_m-(s^2)_2021_09_07-12-34-16.pickle')
 # Utils.loadFigFromPickleFile(outputFolderName + 'C1/shimmer/F1_shimmer__Accel_WR_Z_m-(s^2)_2021_09_07-12-34-16.pickle')
-# Utils.loadFigFromPickleFile(outputFolderName + 'C1/shimmer/F1_shimmer__GSR_Skin_Conductance_microSiemens_2021_09_07-12-32-53.pickle')
+Utils.loadFigFromPickleFile(outputFolderName + 'C1/shimmer/F1_shimmer__GSR_Skin_Conductance_microSiemens_2021_09_07-12-32-53.pickle')
 # Utils.loadFigFromPickleFile(outputFolderName + 'C1/shimmer/F1_shimmer__GSR_Skin_Conductance_uS-1_2021_09_07-12-33-03.pickle')
 # Utils.loadFigFromPickleFile(outputFolderName + 'C1/shimmer/F1_shimmer__GSR_Skin_Resistance_kOhms_2021_09_07-12-33-39.pickle')
 # Utils.loadFigFromPickleFile(outputFolderName + 'C1/shimmer/F1_shimmer__Gyro_X_deg-s_2021_09_07-12-33-58.pickle')
